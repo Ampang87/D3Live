@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>d3VIEW Response Extractor — Marketing Package</title>
+<style>
+  :root {
+    --navy: #0D1B3E;
+    --navy-mid: #1A2E5A;
+    --blue: #1565C0;
+    --blue-light: #1976D2;
+    --accent: #00BCD4;
+    --accent2: #FF6B35;
+    --white: #FFFFFF;
+    --off-white: #F8FAFF;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-500: #64748B;
+    --gray-700: #334155;
+    --gray-900: #0F172A;
+    --success: #10B981;
+    --warn: #F59E0B;
+    --font: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #FAFBFF; color: var(--gray-900); }
+
+  /* NAV */
+  nav {
+    background: var(--navy);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  nav .logo { color: white; font-weight: 700; font-size: 1.1rem; padding: 1rem 0; white-space: nowrap; }
+  nav .logo span { color: var(--accent); }
+  nav a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 1.1rem 0.5rem;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  nav a:hover, nav a.active { color: white; border-bottom-color: var(--accent); }
+  nav .spacer { flex: 1; }
+  nav .badge {
+    background: var(--accent);
+    color: var(--navy);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  /* SECTIONS */
+  .section { padding: 3rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .section-num {
+    width: 36px; height: 36px;
+    background: var(--navy);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .section-title { font-size: 1.4rem; font-weight: 700; color: var(--navy); }
+  .section-sub { font-size: 0.9rem; color: var(--gray-500); margin-top: 0.2rem; }
+
+  /* CARDS */
+  .card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; }
+
+  /* ============================
+     SECTION 1: VIDEO SCRIPT
+     ============================ */
+  .video-hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 60%, #0E3460 100%);
+    border-radius: 16px;
+    padding: 2.5rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .video-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(0,188,212,0.08);
+  }
+  .video-hero h2 { font-size: 1.6rem; margin-bottom: 0.5rem; }
+  .video-hero .meta { display: flex; gap: 1.5rem; margin: 1rem 0; }
+  .video-hero .meta span {
+    background: rgba(255,255,255,0.1);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .video-hero .meta span.accent { background: rgba(0,188,212,0.25); color: var(--accent); }
+
+  .scene {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .scene-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 1.25rem;
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .scene-tag {
+    background: var(--navy);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+  }
+  .scene-tag.hook { background: var(--accent2); }
+  .scene-tag.demo { background: var(--blue); }
+  .scene-tag.cta { background: var(--success); }
+  .scene-time { color: var(--gray-500); font-size: 0.8rem; font-weight: 600; }
+  .scene-title { font-weight: 600; font-size: 0.95rem; color: var(--gray-700); }
+  .scene-body { padding: 1.25rem; }
+  .scene-body p { font-size: 0.9rem; line-height: 1.6; color: var(--gray-700); margin-bottom: 0.75rem; }
+  .scene-body p:last-child { margin-bottom: 0; }
+  .scene-body .vo {
+    font-style: italic;
+    color: var(--navy);
+    border-left: 3px solid var(--accent);
+    padding-left: 0.75rem;
+    margin: 0.75rem 0;
+  }
+  .scene-body .visual {
+    background: var(--off-white);
+    border: 1px dashed var(--gray-200);
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.82rem;
+    color: var(--gray-500);
+    margin-top: 0.5rem;
+  }
+  .scene-body .visual::before { content: '🎬 '; }
+
+  /* ============================
+     SECTION 2: BLOG
+     ============================ */
+  .blog-preview {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .blog-banner {
+    background: linear-gradient(135deg, var(--navy) 0%, #133272 100%);
+    padding: 2.5rem 2rem;
+    color: white;
+  }
+  .blog-banner .tag {
+    display: inline-block;
+    background: rgba(0,188,212,0.2);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    letter-spacing: 0.06em;
+    margin-bottom: 1rem;
+  }
+  .blog-banner h1 { font-size: 1.7rem; line-height: 1.3; margin-bottom: 0.75rem; }
+  .blog-banner .byline { font-size: 0.85rem; opacity: 0.7; }
+  .blog-body { padding: 2rem; }
+  .blog-body h2 { font-size: 1.15rem; font-weight: 700; color: var(--navy); margin: 1.5rem 0 0.6rem; }
+  .blog-body h3 { font-size: 1rem; font-weight: 600; color: var(--gray-700); margin: 1.2rem 0 0.5rem; }
+  .blog-body p { font-size: 0.92rem; line-height: 1.75; color: var(--gray-700); margin-bottom: 1rem; }
+  .blog-body ul { margin: 0.5rem 0 1rem 1.5rem; }
+  .blog-body li { font-size: 0.9rem; line-height: 1.7; color: var(--gray-700); margin-bottom: 0.3rem; }
+  .blog-body .callout {
+    background: var(--off-white);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+  }
+  .blog-body .callout p { margin: 0; font-size: 0.9rem; }
+  .feature-pills {
+    display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;
+  }
+  .pill {
+    background: var(--off-white);
+    border: 1px solid var(--gray-200);
+    color: var(--navy);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+  }
+
+  /* ============================
+     SECTION 3: LINKEDIN POSTS
+     ============================ */
+  .linkedin-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .li-header {
+    padding: 1rem 1.25rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .li-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .li-name { font-weight: 600; font-size: 0.9rem; }
+  .li-role { font-size: 0.78rem; color: var(--gray-500); }
+  .li-body { padding: 1rem 1.25rem; }
+  .li-body p { font-size: 0.88rem; line-height: 1.65; color: var(--gray-700); margin-bottom: 0.5rem; }
+  .li-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+  .li-tag { color: #0A66C2; font-size: 0.83rem; font-weight: 500; }
+  .li-image-placeholder {
+    margin: 0 1.25rem 1rem;
+    background: linear-gradient(135deg, var(--navy) 0%, #1A3A6B 100%);
+    border-radius: 8px;
+    padding: 1.5rem;
+    color: white;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  .li-image-placeholder strong { display: block; font-size: 1.1rem; margin-bottom: 0.3rem; }
+  .li-actions {
+    padding: 0.6rem 1.25rem;
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--gray-500);
+  }
+  .li-post-type {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+  }
+  .type-launch { background: #E3F2FD; color: #1565C0; }
+  .type-educ { background: #E8F5E9; color: #2E7D32; }
+  .type-social { background: #FFF3E0; color: #E65100; }
+  .type-event { background: #F3E5F5; color: #6A1B9A; }
+
+  /* ============================
+     SECTION 4: WEBINAR + EMAIL
+     ============================ */
+  .webinar-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .webinar-banner {
+    background: var(--navy);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .webinar-banner h3 { color: white; font-size: 1.1rem; }
+  .webinar-banner .wdate {
+    background: rgba(0,188,212,0.15);
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .webinar-body { padding: 1.5rem 2rem; }
+  .webinar-body h4 { font-size: 0.85rem; font-weight: 700; color: var(--gray-500); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .agenda-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 0.88rem;
+  }
+  .agenda-item:last-child { border-bottom: none; }
+  .agenda-time { color: var(--accent); font-weight: 700; min-width: 55px; font-size: 0.82rem; }
+  .agenda-desc { color: var(--gray-700); line-height: 1.5; }
+  .agenda-desc strong { color: var(--gray-900); display: block; }
+
+  .email-preview {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .email-meta {
+    background: var(--gray-100);
+    padding: 0.75rem 1.25rem;
+    font-size: 0.82rem;
+    color: var(--gray-700);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .email-meta span { color: var(--gray-500); }
+  .email-header {
+    background: var(--navy);
+    padding: 2rem;
+    text-align: center;
+    color: white;
+  }
+  .email-header .logo-text { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .email-header .logo-text em { color: var(--accent); font-style: normal; }
+  .email-header h2 { font-size: 1.4rem; line-height: 1.35; }
+  .email-header p { opacity: 0.75; font-size: 0.88rem; margin-top: 0.5rem; }
+  .email-body { padding: 2rem; }
+  .email-body p { font-size: 0.9rem; line-height: 1.7; color: var(--gray-700); margin-bottom: 0.9rem; }
+  .email-feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1.25rem 0; }
+  .ef-item {
+    background: var(--off-white);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 0.8rem;
+  }
+  .ef-item .ef-icon { font-size: 1.2rem; margin-bottom: 0.35rem; }
+  .ef-item strong { display: block; font-size: 0.85rem; color: var(--navy); margin-bottom: 0.2rem; }
+  .ef-item span { font-size: 0.78rem; color: var(--gray-500); }
+  .email-cta {
+    text-align: center;
+    margin: 1.5rem 0;
+  }
+  .btn-primary {
+    background: var(--blue);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--blue);
+    border: 1.5px solid var(--blue);
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 0.75rem;
+  }
+  .email-footer {
+    background: var(--gray-100);
+    padding: 1.25rem 2rem;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--gray-500);
+    border-top: 1px solid var(--gray-200);
+  }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab {
+    padding: 0.45rem 1rem;
+    border-radius: 6px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--gray-200);
+    background: white;
+    color: var(--gray-500);
+    transition: all 0.15s;
+  }
+  .tab:hover { background: var(--off-white); color: var(--navy); }
+  .tab.active { background: var(--navy); color: white; border-color: var(--navy); }
+
+  /* FEATURE PAGE */
+  .feature-page { background: white; border: 1px solid var(--gray-200); border-radius: 12px; overflow: hidden; }
+  .fp-hero {
+    background: linear-gradient(135deg, var(--navy) 0%, #123070 100%);
+    padding: 3rem 2rem;
+    color: white;
+    text-align: center;
+  }
+  .fp-hero .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .fp-hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; }
+  .fp-hero p { font-size: 1rem; opacity: 0.8; max-width: 540px; margin: 0 auto 1.5rem; line-height: 1.6; }
+  .fp-hero .cta-row { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+  .fp-hero .btn-white {
+    background: white;
+    color: var(--navy);
+    padding: 0.7rem 1.75rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+  .fp-hero .btn-outline {
+    background: transparent;
+    color: white;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    padding: 0.7rem 1.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+  .fp-capabilities { padding: 2.5rem 2rem; }
+  .fp-capabilities h2 { font-size: 1.3rem; font-weight: 700; color: var(--navy); margin-bottom: 1.5rem; text-align: center; }
+  .cap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+  .cap-item {
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .cap-icon { font-size: 1.5rem; margin-bottom: 0.2rem; }
+  .cap-title { font-weight: 700; font-size: 0.9rem; color: var(--navy); }
+  .cap-desc { font-size: 0.82rem; line-height: 1.55; color: var(--gray-500); }
+  .fp-social-proof {
+    background: var(--off-white);
+    border-top: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 2rem;
+  }
+  .stat-row { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--navy); }
+  .stat-label { font-size: 0.8rem; color: var(--gray-500); margin-top: 0.2rem; }
+
+  /* DIVIDER SECTION */
+  .section-divider {
+    background: var(--navy);
+    padding: 0.1rem 0;
+  }
+
+  /* COPY BUTTON */
+  .copy-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.75rem;
+  }
+  .copy-btn {
+    background: white;
+    border: 1px solid var(--gray-200);
+    color: var(--gray-700);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: var(--off-white); }
+
+  /* TIMELINE / CALENDAR */
+  .calendar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+  .month-card {
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .month-header {
+    background: var(--navy);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .month-body { padding: 0.75rem; }
+  .month-event {
+    font-size: 0.78rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-700);
+    line-height: 1.4;
+  }
+  .month-event:last-child { border-bottom: none; }
+  .month-event .ev-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .ev-dot.blue { background: var(--blue); }
+  .ev-dot.green { background: var(--success); }
+  .ev-dot.orange { background: var(--accent2); }
+
+  @media (max-width: 640px) {
+    .section { padding: 2rem 1rem; }
+    .email-feature-grid { grid-template-columns: 1fr; }
+    .stat-row { gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">d3<span>VIEW</span> <span style="opacity:0.4;font-weight:400;">|</span> Marketing Kit</div>
+  <a href="#video" class="active">Video</a>
+  <a href="#blog">Blog</a>
+  <a href="#feature">Feature Page</a>
+  <a href="#linkedin">LinkedIn</a>
+  <a href="#webinar">Webinar</a>
+  <a href="#email">Email</a>
+  <div class="spacer"></div>
+  <span class="badge">Response Extractor</span>
+</nav>
+
+
+<!-- ============================
+     SECTION 1: VIDEO SCRIPT
+     ============================ -->
+<div class="section" id="video">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div>
+      <div class="section-title">Hero Marketing Video — Script & Storyboard</div>
+      <div class="section-sub">60-second product launch video for YouTube, LinkedIn, and website hero</div>
+    </div>
+  </div>
+
+  <div class="video-hero">
+    <h2>Response Extractor — "See Everything. Know Instantly."</h2>
+    <div class="meta">
+      <span class="accent">60 seconds</span>
+      <span>Voiceover + Screen capture</span>
+      <span>Music: Cinematic / Upbeat</span>
+      <span>Ratio: 16:9 + 1:1 cut</span>
+    </div>
+    <p style="opacity:0.75; font-size:0.88rem; line-height:1.6;">
+      Audience: LS-DYNA simulation engineers, CAE analysts, crashworthiness teams. Tone: confident, technical, exciting.
+    </p>
+  </div>
+
+  <!-- Scene 1 -->
+  <div class="scene">
+    <div class="scene-header">
+      <span class="scene-tag hook">HOOK</span>
+      <span class="scene-time">0:00 – 0:08</span>
+      <span class="scene-title">The Problem — Simulation chaos</span>
+    </div>
+    <div class="scene-body">
+      <p class="vo">"You've run the simulation. Thousands of nodes, hundreds of parts, millions of data points. And somewhere in that data — the answer you need."</p>
+      <p class="visual">Screen: Cluttered legacy post-processing workflow — multiple windows, slow loading, scattered files. Time-lapse of an engineer clicking through menus.</p>
+    </div>
+  </div>
+
+  <!-- Scene 2 -->
+  <div class="scene">
+    <div class="scene-header">
+      <span class="scene-tag hook">REVEAL</span>
+      <span class="scene-time">0:08 – 0:16</span>
+      <span class="scene-title">Product reveal — clean, unified</span>
+    </div>
+    <div class="scene-body">
+      <p class="vo">"Introducing d3VIEW Response Extractor — one unified platform to visualize, analyze, and extract everything from your LS-DYNA simulations."</p>
+      <p class="visual">Screen: Clean zoom-in to the d3VIEW Response Extractor interface. The dark-navy UI appears with a smooth animation. Logo glows in.</p>
+    </div>
+  </div>
+
+  <!-- Scene 3 -->
+  <div class="scene">
+    <div class="scene-header">
+      <span class="scene-tag demo">DEMO</span>
+      <span class="scene-time">0:16 – 0:27</span>
+      <span class="scene-title">Flow Analyzer — energy in motion</span>
+    </div>
+    <div class="scene-body">
+      <p class="vo">"Instantly see how energy flows through your crash model — which parts absorb the most, when, and why. The Flow Analyzer transforms complex BINOUT data into clarity."</p>
+      <p class="visual">Screen: Flow Analyzer tab — stacked bar chart animating across time windows. Sparklines pulse. Energy Share view sweeps in. HAT3 lights up as top absorber at 29.7%.</p>
+    </div>
+  </div>
+
+  <!-- Scene 4 -->
+  <div class="scene">
+    <div class="scene-header">
+      <span class="scene-tag demo">DEMO</span>
+      <span class="scene-time">0:27 – 0:38</span>
+      <span class="scene-title">Connections — 20+ validation rules</span>
+    </div>
+    <div class="scene-body">
+      <p class="vo">"Validate every joint, spotweld, and section — against 20+ industry standards including AISC, SAE, and RCSC. Red flags surface instantly. No more manual checking."</p>
+      <p class="visual">Screen: Connections tab — table showing SPOTWELD failures highlighted red. Validations panel slides in showing AISC, SAE criteria list. Load-path visualization animates.</p>
+    </div>
+  </div>
+
+  <!-- Scene 5 -->
+  <div class="scene">
+    <div class="scene-header">
+      <span class="scene-tag demo">DEMO</span>
+      <span class="scene-time">0:38 – 0:48</span>
+      <span class="scene-title">Occupants — safety at a glance</span>
+    </div>
+    <div class="scene-body">
+      <p class="vo">"For crash safety teams — occupant and restraint analysis with full ATD channel mapping, airbag deployment visualization, and injury scores by region. US NCAP 2025 ready."</p>
+      <p class="visual">Screen: Occupants & Restraints → Summary tab with 5-star ratings. Airbag deployment circle animates. ATD table rows appear — Head, Neck, Thorax, Femur all green PASS.</p>
+    </div>
+  </div>
+
+  <!-- Scene 6 -->
+  <div class="scene">
+    <div class="scene-header">
+      <span class="scene-tag cta">CTA</span>
+      <span class="scene-time">0:48 – 0:60</span>
+      <span class="scene-title">Close — access + call to action</span>
+    </div>
+    <div class="scene-body">
+      <p class="vo">"BINOUT. D3HSP. D3PLOT. All in one place. All in seconds. d3VIEW Response Extractor — built for engineers who demand more from their data."</p>
+      <p class="visual">Screen: Quick montage — Explorer with plotted curves, Heatmap table, Force Analyzer Gantt view. End card: d3VIEW logo + URL + "Request Access" button.</p>
+      <p style="margin-top:0.75rem; font-size:0.82rem; color:var(--gray-500);">
+        <strong>End card text:</strong> "d3VIEW Response Extractor" · app.d3view.com · [Request a Demo] [Watch Full Guide]
+      </p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem; background: var(--off-white);">
+    <p style="font-size:0.85rem; font-weight:700; color:var(--navy); margin-bottom:0.6rem;">📋 Production checklist</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Screen capture at 4K, 60fps</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Animated logo intro (0.5s)</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Background music (licensed, -18dB)</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Closed captions / SRT file</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Export: MP4 H.264 + WebM</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Square cut (1:1) for LinkedIn feed</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Thumbnail: dark UI screenshot + title</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ 90-second extended version for email</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================
+     SECTION 2: BLOG POST
+     ============================ -->
+<div class="section" id="blog">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div>
+      <div class="section-title">Blog Post — Full Draft</div>
+      <div class="section-sub">For d3view.com/blog — SEO-optimized, ~900 words, engineering audience</div>
+    </div>
+  </div>
+
+  <div class="blog-preview">
+    <div class="blog-banner">
+      <div class="tag">PRODUCT LAUNCH</div>
+      <h1>Introducing Response Extractor: The Unified LS-DYNA Analysis Platform Every Simulation Engineer Has Been Waiting For</h1>
+      <div class="byline">By the d3VIEW Engineering Team · May 2026 · 5 min read</div>
+    </div>
+    <div class="blog-body">
+      <p>If you've spent time post-processing LS-DYNA results, you know the frustration: navigating between multiple tools, waiting for data to load, manually hunting through BINOUT files to find the responses that matter. Traditional workflows were built for a simpler era of simulation. Today's models — with hundreds of parts, thousands of connections, and complex occupant systems — demand something better.</p>
+      <p>Today we're launching <strong>Response Extractor</strong>, a fully unified analysis platform built directly into d3VIEW. It brings together everything you need — BINOUT extraction, energy flow analysis, connection validation, occupant safety scoring, and force analysis — into one fast, interactive interface.</p>
+
+      <div class="callout">
+        <p><strong>What is Response Extractor?</strong> It's an advanced visualization and analysis platform for exploring simulation response data, plotting curves, analyzing load paths, validating connections, and reviewing occupant ratings — all without leaving d3VIEW.</p>
+      </div>
+
+      <h2>Why We Built It</h2>
+      <p>The existing extraction workflow had real limitations. Data lived in silos. Every analyst had their own patched-together process. Scalability suffered as simulation complexity grew. We designed Response Extractor from the ground up around five principles:</p>
+      <div class="feature-pills">
+        <span class="pill">Unified environment</span>
+        <span class="pill">Improved navigation</span>
+        <span class="pill">Centralized plotting</span>
+        <span class="pill">Faster loading</span>
+        <span class="pill">Enterprise scalability</span>
+      </div>
+
+      <h2>What You Can Do With It</h2>
+
+      <h3>BINOUT Extraction — Your Data, Instantly</h3>
+      <p>Select your simulation, choose a branch (glstat, nodout, rbdout, secforc...), pick components and IDs, and click Plot. Results appear across organized multi-page layouts. Time-history curves, derived responses, and grouped analyses are all one click away. The searchable, interactive BINOUT browser eliminates the need to manually parse file structures.</p>
+
+      <h3>Flow Analyzer — Understand Where Energy Goes</h3>
+      <p>The Flow Analyzer is unlike anything available in legacy tools. It visualizes how internal energy propagates through your model part-by-part, window-by-window. The Stacked Bar view shows total energy absorbed over time. The Stream graph reveals load transfer as fluid ribbons. The Heatmap lets you compare part absorption across all time windows at once. The Leaders view identifies which part dominated absorption in each segment.</p>
+      <p>For a complex body-in-white model, this means moving from "something is wrong in the 30–40ms window" to "HAT3 absorbed 1.26 MJ in that window — 29.7% of total energy" in seconds.</p>
+
+      <h3>Connections — 20+ Validation Standards Built In</h3>
+      <p>Every spotweld, bolt, rivet, and section in your model can be validated automatically against more than 20 engineering criteria — including Shigley Method, AISC 360-16, RCSC 2014, SAE J429, and ASTM standards. Results are sortable by damage ratio, filterable by failure status, and can be extended with custom validation rules. The Load-Path view shows which connections bear the most load and when failures occur.</p>
+
+      <h3>Occupants & Restraints — Full Safety Analysis</h3>
+      <p>For crash safety engineers, the Occupants & Restraints module provides end-to-end ATD analysis aligned with US NCAP 2025 protocols. The Mapper auto-assigns BINOUT channels to injury criteria. The ATD table scores head, neck, thorax, femur, and tibia against thresholds. Airbag deployment is animated in real time. Seatbelt force curves are overlaid automatically.</p>
+
+      <h3>Force Analyzer — Load Paths in Every Dimension</h3>
+      <p>The Force Analyzer goes beyond simple force vs. time curves. The Load Path view constructs force chains station-by-station, showing how load transfers between sections. Motion view plots centroid trajectories in X, Y, and Z. The Spatial view animates force centroids in 2D. Gantt view shows exactly when each section exceeds force thresholds across the entire simulation duration.</p>
+
+      <h2>How to Access It</h2>
+      <p>Response Extractor is available now at <code>app.d3view.com/tests/response.extractor.html?srs_id=YOUR_SIM_ID</code>. Replace the simulation ID with your run ID and you're in. It's also accessible from the Utilities → Response Extraction menu inside any simulation view.</p>
+
+      <div class="callout">
+        <p><strong>Important note on data quality:</strong> Extraction accuracy depends on the quality of your simulation files. Missing or corrupted BINOUT, D3HSP, or D3PLOT files will affect results. Ensure your simulation run completed successfully before extracting.</p>
+      </div>
+
+      <h2>What's Coming Next</h2>
+      <p>File Upload support (direct BINOUT upload without a simulation record), expanded LLM Agent integration for natural-language querying, and additional template configurations are on the roadmap. The features highlighted in red in the outline — File Upload and Template Configurations — are already in development.</p>
+
+      <p style="margin-top:1.5rem;"><strong>Ready to try it?</strong> If you're an existing d3VIEW customer, log in and navigate to any simulation to get started. If you're new to d3VIEW, request a demo below and we'll walk you through Response Extractor with your own data.</p>
+
+      <div style="display:flex; gap:1rem; margin-top:1.25rem; flex-wrap:wrap;">
+        <a href="#" class="btn-primary">Request a demo</a>
+        <a href="#" class="btn-secondary">Read the docs</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================
+     SECTION 2B: FEATURE PAGE
+     ============================ -->
+<div class="section" id="feature">
+  <div class="section-header">
+    <div class="section-num">2b</div>
+    <div>
+      <div class="section-title">d3view.com Feature Page — /response-extractor</div>
+      <div class="section-sub">Full webpage layout for the product feature page on d3view.com</div>
+    </div>
+  </div>
+
+  <div class="feature-page">
+    <div class="fp-hero">
+      <div class="eyebrow">New Feature</div>
+      <h1>Response Extractor</h1>
+      <p>The unified LS-DYNA post-processing platform. Extract, visualize, and analyze simulation responses — from energy flow to occupant safety — in one place.</p>
+      <div class="cta-row">
+        <a href="#" class="btn-white">Request a Demo</a>
+        <a href="#" class="btn-outline">Watch the Video</a>
+      </div>
+    </div>
+
+    <div class="fp-social-proof">
+      <div class="stat-row">
+        <div class="stat-item">
+          <div class="stat-num">20+</div>
+          <div class="stat-label">Validation standards</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">5</div>
+          <div class="stat-label">Analysis modules</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Data source types</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">1</div>
+          <div class="stat-label">Unified platform</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fp-capabilities">
+      <h2>Everything you need to understand your simulation</h2>
+      <div class="cap-grid">
+        <div class="cap-item">
+          <div class="cap-icon">⚡</div>
+          <div class="cap-title">Flow Analyzer</div>
+          <div class="cap-desc">Visualize energy propagation part-by-part. Stacked bar, stream, heatmap, leaders, and energy share views built in.</div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-icon">🔗</div>
+          <div class="cap-title">Connections Validation</div>
+          <div class="cap-desc">20+ rules including AISC, SAE, RCSC. Automatic failure detection, load-path analysis, and custom criteria support.</div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-icon">👤</div>
+          <div class="cap-title">Occupants & Restraints</div>
+          <div class="cap-desc">Full ATD scoring, airbag deployment animation, seatbelt analysis. US NCAP 2025 protocol ready.</div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-icon">📊</div>
+          <div class="cap-title">Force Analyzer</div>
+          <div class="cap-desc">Force chains, centroid motion, spatial animation, and Gantt view. SECFORC, RCFORC, and NODFOR supported.</div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-icon">📂</div>
+          <div class="cap-title">Multi-format extraction</div>
+          <div class="cap-desc">BINOUT, D3HSP, D3PLOT, and manual entry. Simulation, local file, and physical test data sources.</div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-icon">🤖</div>
+          <div class="cap-title">AI Agent integration</div>
+          <div class="cap-desc">LLM-ready interface for natural-language querying of your simulation data. Ask questions, get answers.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--gray-200); padding:2rem; text-align:center;">
+      <p style="font-size:0.9rem; color:var(--gray-500); margin-bottom:1.25rem;">Supported file formats and data sources</p>
+      <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:0.75rem;">
+        <span class="pill">BINOUT</span>
+        <span class="pill">D3HSP</span>
+        <span class="pill">D3PLOT</span>
+        <span class="pill">DYNA BINOUT</span>
+        <span class="pill">DYNA D3HSP</span>
+        <span class="pill">DYNA D3PLOT</span>
+        <span class="pill">Nastran UNV</span>
+        <span class="pill">BMS SSV</span>
+        <span class="pill">Manual Entry</span>
+      </div>
+    </div>
+
+    <div style="background:var(--navy); padding:2rem; text-align:center; color:white;">
+      <p style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem;">Ready to see it with your own data?</p>
+      <p style="opacity:0.7; font-size:0.88rem; margin-bottom:1.25rem;">Existing customers: open any simulation and go to Utilities → Response Extraction.</p>
+      <a href="#" class="btn-white">Request a demo</a>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================
+     SECTION 3: LINKEDIN POSTS
+     ============================ -->
+<div class="section" id="linkedin">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div>
+      <div class="section-title">LinkedIn Content — 4-Post Campaign</div>
+      <div class="section-sub">Launch post + 3 follow-up posts over 4 weeks. Post from company page and key team members.</div>
+    </div>
+  </div>
+
+  <!-- Post 1 -->
+  <div class="linkedin-card">
+    <div class="li-header">
+      <div class="li-avatar">d3</div>
+      <div>
+        <div class="li-name">d3VIEW Inc.</div>
+        <div class="li-role">Engineering Software · 2,400 followers</div>
+      </div>
+    </div>
+    <div class="li-body">
+      <span class="li-post-type type-launch">🚀 LAUNCH</span>
+      <p><strong>We just shipped something big for LS-DYNA engineers.</strong></p>
+      <p>Response Extractor is now live — a unified platform to visualize and analyze everything from your crash simulations without jumping between tools.</p>
+      <p>In one interface:<br>
+      ✅ BINOUT + D3HSP + D3PLOT extraction<br>
+      ✅ Flow Analyzer with energy heatmaps<br>
+      ✅ 20+ connection validation standards<br>
+      ✅ Full occupant & restraint scoring (US NCAP 2025)<br>
+      ✅ Force chains, load paths, Gantt view<br>
+      ✅ LLM AI Agent built in</p>
+      <p>If you've ever spent hours hunting through BINOUT data or manually validating spotwelds — this is for you.</p>
+      <p>🎬 Watch the 60-second demo in the video below.<br>
+      🔗 Request early access: link in comments.</p>
+      <div class="li-tags">
+        <span class="li-tag">#LSDYNA</span>
+        <span class="li-tag">#CrashSimulation</span>
+        <span class="li-tag">#CAE</span>
+        <span class="li-tag">#FiniteElement</span>
+        <span class="li-tag">#d3VIEW</span>
+        <span class="li-tag">#VehicleSafety</span>
+      </div>
+    </div>
+    <div class="li-image-placeholder">
+      <strong>📹 Attach: 60-second hero video</strong>
+      Or: screenshot of Flow Analyzer with energy heatmap
+    </div>
+    <div class="li-actions">
+      <span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span><span>📩 Send</span>
+    </div>
+  </div>
+
+  <!-- Post 2 -->
+  <div class="linkedin-card">
+    <div class="li-header">
+      <div class="li-avatar" style="background:#1565C0;">R</div>
+      <div>
+        <div class="li-name">Rajashree [Last Name]</div>
+        <div class="li-role">Simulation Engineer at d3VIEW · Personal post</div>
+      </div>
+    </div>
+    <div class="li-body">
+      <span class="li-post-type type-educ">📚 EDUCATIONAL</span>
+      <p><strong>Here's what "energy flow analysis" actually means in a crash model — and why it matters.</strong></p>
+      <p>When a vehicle impacts a barrier, kinetic energy has to go somewhere. It converts to internal (strain) energy absorbed by deforming parts. Knowing <em>which parts absorb how much, and when</em> is the difference between a good design and a failed one.</p>
+      <p>Our new Flow Analyzer in d3VIEW Response Extractor gives you this in 5 views:</p>
+      <p>📊 <strong>Stacked Bar</strong> — total energy per time window, stacked by part<br>
+      🌊 <strong>Stream</strong> — load transfer shown as fluid ribbons<br>
+      🔥 <strong>Heatmap</strong> — which part was hottest in each time window<br>
+      🏆 <strong>Leaders</strong> — the dominant absorber in each segment<br>
+      📈 <strong>Energy Share</strong> — each part's % of total, with activation time</p>
+      <p>In our example run: HAT3 absorbed 29.7% of total energy — 7,402 kJ across 10 parts tracked. That analysis used to take hours. Now it's seconds.</p>
+      <div class="li-tags">
+        <span class="li-tag">#CrashworthinessEngineering</span>
+        <span class="li-tag">#LSDYNA</span>
+        <span class="li-tag">#SimulationEngineering</span>
+        <span class="li-tag">#AutomotiveSafety</span>
+      </div>
+    </div>
+    <div class="li-image-placeholder">
+      <strong>📸 Attach: Flow Analyzer heatmap screenshot</strong>
+      Annotated with arrow pointing to HAT3 dominant segment
+    </div>
+    <div class="li-actions">
+      <span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span><span>📩 Send</span>
+    </div>
+  </div>
+
+  <!-- Post 3 -->
+  <div class="linkedin-card">
+    <div class="li-header">
+      <div class="li-avatar">d3</div>
+      <div>
+        <div class="li-name">d3VIEW Inc.</div>
+        <div class="li-role">Engineering Software · Company post</div>
+      </div>
+    </div>
+    <div class="li-body">
+      <span class="li-post-type type-social">💬 SOCIAL PROOF</span>
+      <p><strong>How many spotweld validation checks do you run per simulation?</strong></p>
+      <p>Most LS-DYNA engineers we've talked to spend 30–60 minutes manually checking connection integrity after each run. Sometimes more.</p>
+      <p>Response Extractor validates every spotweld, bolt, rivet, and section automatically — against 20+ standards including AISC 360-16, SAE J429, Shigley Method, and RCSC 2014.</p>
+      <p>Results appear in a filterable table sorted by damage ratio. Red = failed. One click shows the load path. Another click shows the failure time window.</p>
+      <p>What takes an afternoon now takes under 2 minutes.</p>
+      <p>Drop a comment: what's the most time-consuming part of your current post-processing workflow? 👇</p>
+      <div class="li-tags">
+        <span class="li-tag">#StructuralAnalysis</span>
+        <span class="li-tag">#AISC</span>
+        <span class="li-tag">#FEA</span>
+        <span class="li-tag">#EngineeringProductivity</span>
+        <span class="li-tag">#d3VIEW</span>
+      </div>
+    </div>
+    <div class="li-image-placeholder">
+      <strong>📸 Attach: Connections table with FAILED rows highlighted</strong>
+      Show Validations panel alongside
+    </div>
+    <div class="li-actions">
+      <span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span><span>📩 Send</span>
+    </div>
+  </div>
+
+  <!-- Post 4 -->
+  <div class="linkedin-card">
+    <div class="li-header">
+      <div class="li-avatar">d3</div>
+      <div>
+        <div class="li-name">d3VIEW Inc.</div>
+        <div class="li-role">Engineering Software · Event post</div>
+      </div>
+    </div>
+    <div class="li-body">
+      <span class="li-post-type type-event">📅 EVENT</span>
+      <p><strong>Join us — free live webinar: Response Extractor deep dive</strong></p>
+      <p>We're hosting a 60-minute live session where we walk through Response Extractor with a real LS-DYNA crash model — from raw BINOUT to full occupant safety scoring.</p>
+      <p>🗓 Date: [Insert date]<br>
+      ⏰ Time: 10 AM PT / 1 PM ET / 6 PM CET<br>
+      📍 Platform: Zoom (free registration)</p>
+      <p>What we'll cover:<br>
+      → BINOUT extraction from a full vehicle crash simulation<br>
+      → Live Flow Analyzer walkthrough with energy heatmaps<br>
+      → Connections validation in real time<br>
+      → Occupant scoring with ATD mapping<br>
+      → Q&A with the engineering team</p>
+      <p>Register free at the link in our bio. Space is limited to 200 attendees.</p>
+      <div class="li-tags">
+        <span class="li-tag">#FreeWebinar</span>
+        <span class="li-tag">#LSDYNA</span>
+        <span class="li-tag">#CrashSimulation</span>
+        <span class="li-tag">#d3VIEW</span>
+        <span class="li-tag">#OnlineLearning</span>
+      </div>
+    </div>
+    <div class="li-image-placeholder">
+      <strong>📸 Attach: Webinar event card graphic</strong>
+      Dark navy background, d3VIEW logo, date/time, "Register Free" CTA
+    </div>
+    <div class="li-actions">
+      <span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span><span>📩 Send</span>
+    </div>
+  </div>
+
+  <div class="card" style="background:var(--off-white);">
+    <p style="font-weight:700; font-size:0.88rem; color:var(--navy); margin-bottom:0.6rem;">📆 LinkedIn posting schedule</p>
+    <div class="calendar-grid">
+      <div class="month-card">
+        <div class="month-header">Week 1 — Launch</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot blue"></span>Day 1: Launch post (company page)</div>
+          <div class="month-event"><span class="ev-dot green"></span>Day 3: Share + team members repost</div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="month-header">Week 2 — Education</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot blue"></span>Day 8: Energy flow educational post</div>
+          <div class="month-event"><span class="ev-dot orange"></span>Day 10: Team member personal post</div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="month-header">Week 3 — Engagement</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot blue"></span>Day 15: Connections social post</div>
+          <div class="month-event"><span class="ev-dot green"></span>Day 17: Respond to all comments</div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="month-header">Week 4 — Webinar</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot orange"></span>Day 22: Webinar announcement</div>
+          <div class="month-event"><span class="ev-dot blue"></span>Day 28: Post-webinar recap</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================
+     SECTION 4: WEBINAR
+     ============================ -->
+<div class="section" id="webinar">
+  <div class="section-header">
+    <div class="section-num">4a</div>
+    <div>
+      <div class="section-title">Webinar Plan — Customer Deep Dive</div>
+      <div class="section-sub">60-minute live session for existing customers + open registration for new prospects</div>
+    </div>
+  </div>
+
+  <div class="card-grid">
+    <!-- Webinar 1 -->
+    <div class="webinar-card">
+      <div class="webinar-banner">
+        <h3>Webinar 1: Response Extractor Launch</h3>
+        <span class="wdate">Month 1</span>
+      </div>
+      <div class="webinar-body">
+        <h4>Agenda (60 min)</h4>
+        <div class="agenda-item">
+          <span class="agenda-time">0–5 min</span>
+          <div class="agenda-desc"><strong>Welcome & overview</strong>Why we built Response Extractor. What changed.</div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">5–15 min</span>
+          <div class="agenda-desc"><strong>Live BINOUT extraction</strong>Load a real vehicle crash simulation. Select branches, plot curves, organize in page layouts.</div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">15–28 min</span>
+          <div class="agenda-desc"><strong>Flow Analyzer deep dive</strong>Energy heatmap, stream graph, leaders view, energy share — all with live data.</div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">28–40 min</span>
+          <div class="agenda-desc"><strong>Connections validation</strong>Run 20+ validation checks. Show failures, load paths, custom criteria setup.</div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">40–52 min</span>
+          <div class="agenda-desc"><strong>Occupants & Restraints</strong>ATD mapping, airbag animation, US NCAP 2025 scoring. Safety workflow end-to-end.</div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">52–60 min</span>
+          <div class="agenda-desc"><strong>Live Q&A</strong>Open questions. Share your use case for prioritization.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Webinar 2 -->
+    <div class="webinar-card">
+      <div class="webinar-banner">
+        <h3>Webinar 2: Advanced Workflows</h3>
+        <span class="wdate">Month 2</span>
+      </div>
+      <div class="webinar-body">
+        <h4>Agenda (60 min)</h4>
+        <div class="agenda-item">
+          <span class="agenda-time">0–5 min</span>
+          <div class="agenda-desc"><strong>Recap & roadmap</strong>What's new since launch. What's coming (file upload, templates).</div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">5–20 min</span>
+          <div class="agenda-desc"><strong>Force Analyzer deep dive</strong>Tables, groups, load path chains, motion view, spatial animation, Gantt chart — full walkthrough.</div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">20–35 min</span>
+          <div class="agenda-desc"><strong>Groups & expressions</strong>Create rule-based groups. Apply across tabs. Use expressions for derived responses.</div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">35–48 min</span>
+          <div class="agenda-desc"><strong>Templates & configurations</strong>Save and reuse extraction configurations across simulation runs.</div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">48–60 min</span>
+          <div class="agenda-desc"><strong>Customer showcase</strong>Invite a customer to share their Response Extractor workflow. Open Q&A.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.25rem; background:var(--off-white);">
+    <p style="font-weight:700; font-size:0.88rem; color:var(--navy); margin-bottom:0.75rem;">📋 Webinar logistics checklist</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Platform: Zoom Webinar (200+ seats)</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Registration page with sim engineer CTA</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Email reminder: 7 days, 1 day, 1 hour before</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Slide deck (branded, with live demo)</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Record and post to YouTube within 24h</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Follow-up email with recording + docs link</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Share Zoom poll: "Which module interests you most?"</div>
+      <div style="font-size:0.82rem; color:var(--gray-700);">✅ Add recording to d3view.com/resources</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================
+     SECTION 4B: EMAIL NEWSLETTER
+     ============================ -->
+<div class="section" id="email">
+  <div class="section-header">
+    <div class="section-num">4b</div>
+    <div>
+      <div class="section-title">Monthly Customer Email Newsletter</div>
+      <div class="section-sub">Launch edition — tailored for existing customers. Send via HubSpot / Mailchimp / equivalent.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem; background:var(--off-white);">
+    <p style="font-size:0.82rem; color:var(--gray-700);"><strong>Subject line options (A/B test):</strong></p>
+    <div style="margin-top:0.5rem; display:flex; flex-direction:column; gap:0.3rem;">
+      <div style="font-size:0.85rem; background:white; border:1px solid var(--gray-200); border-radius:6px; padding:0.4rem 0.75rem; color:var(--navy);">
+        A: "New in d3VIEW: Response Extractor is live — see your simulations like never before"
+      </div>
+      <div style="font-size:0.85rem; background:white; border:1px solid var(--gray-200); border-radius:6px; padding:0.4rem 0.75rem; color:var(--navy);">
+        B: "[First name], your BINOUT post-processing just got a major upgrade"
+      </div>
+    </div>
+    <p style="font-size:0.78rem; color:var(--gray-500); margin-top:0.5rem;">Preview text: "Flow Analyzer, 20+ connection validations, occupant scoring — all in one place."</p>
+  </div>
+
+  <div class="email-preview">
+    <div class="email-meta">
+      <span>From:</span> d3VIEW Engineering Team &lt;updates@d3view.com&gt;<br>
+      <span>To:</span> [Customer first name] · [Company] · [Segment: LS-DYNA User]<br>
+      <span>Subject:</span> New in d3VIEW: Response Extractor is live
+    </div>
+
+    <div class="email-header">
+      <div class="logo-text">d3<em>VIEW</em></div>
+      <h2>Introducing Response Extractor — your simulation data, finally unified</h2>
+      <p>A new way to explore, analyze, and understand everything in your LS-DYNA runs</p>
+    </div>
+
+    <div class="email-body">
+      <p>Hi [First name],</p>
+      <p>We've been working on something big — and it's now live for all d3VIEW customers.</p>
+      <p><strong>Response Extractor</strong> is a brand-new, unified analysis platform built into d3VIEW. It replaces scattered post-processing workflows with one fast, interactive environment where you can go from raw simulation output to insight in minutes.</p>
+
+      <div class="email-feature-grid">
+        <div class="ef-item">
+          <div class="ef-icon">⚡</div>
+          <strong>Flow Analyzer</strong>
+          <span>Energy heatmaps, stream graphs, and per-part absorption tracking</span>
+        </div>
+        <div class="ef-item">
+          <div class="ef-icon">🔗</div>
+          <strong>Connections Validation</strong>
+          <span>20+ standards — AISC, SAE, RCSC — automatic failure detection</span>
+        </div>
+        <div class="ef-item">
+          <div class="ef-icon">👤</div>
+          <strong>Occupants & Restraints</strong>
+          <span>Full ATD scoring, airbag animation, US NCAP 2025</span>
+        </div>
+        <div class="ef-item">
+          <div class="ef-icon">📊</div>
+          <strong>Force Analyzer</strong>
+          <span>Load chains, centroid motion, Gantt view, spatial animation</span>
+        </div>
+      </div>
+
+      <p>To get started, open any simulation in d3VIEW and go to <strong>Utilities → Response Extraction</strong>. Or access it directly at <code style="background:var(--gray-100); padding:0.15rem 0.4rem; border-radius:4px; font-size:0.82rem;">app.d3view.com/tests/response.extractor.html?srs_id=YOUR_SIM_ID</code>.</p>
+
+      <div class="email-cta">
+        <a href="#" class="btn-primary">Try Response Extractor now</a>
+        <a href="#" class="btn-secondary">Watch the demo</a>
+      </div>
+
+      <p style="font-size:0.85rem; color:var(--gray-500); border-top:1px solid var(--gray-200); padding-top:1rem; margin-top:0.5rem;">
+        <strong>📅 Join our live webinar</strong> — We're hosting a free 60-minute session on [DATE] to walk through Response Extractor with a real crash simulation. 
+        <a href="#" style="color:var(--blue);">Register here →</a>
+      </p>
+
+      <p>As always, if you have questions, reply to this email or reach us at support@d3view.com. We love hearing how you're using d3VIEW.</p>
+      <p>— The d3VIEW Engineering Team</p>
+    </div>
+
+    <div class="email-footer">
+      d3VIEW Inc. · Simulation Intelligence Platform<br>
+      <a href="#" style="color:var(--blue);">Unsubscribe</a> · <a href="#" style="color:var(--blue);">Manage preferences</a> · <a href="#" style="color:var(--blue);">View in browser</a><br>
+      © 2026 d3VIEW Inc. All rights reserved.
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem; background:var(--off-white);">
+    <p style="font-weight:700; font-size:0.88rem; color:var(--navy); margin-bottom:0.75rem;">📆 6-month email newsletter calendar</p>
+    <div class="calendar-grid">
+      <div class="month-card">
+        <div class="month-header">Month 1 — Launch</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot blue"></span>Launch announcement email</div>
+          <div class="month-event"><span class="ev-dot green"></span>Webinar invite follow-up</div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="month-header">Month 2 — Deep dive</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot blue"></span>Flow Analyzer feature spotlight</div>
+          <div class="month-event"><span class="ev-dot orange"></span>Webinar #2 invite</div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="month-header">Month 3 — Validation</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot blue"></span>Connections module spotlight</div>
+          <div class="month-event"><span class="ev-dot green"></span>Customer case study</div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="month-header">Month 4 — Safety</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot blue"></span>Occupants & Restraints focus</div>
+          <div class="month-event"><span class="ev-dot orange"></span>NCAP 2025 tips</div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="month-header">Month 5 — Power users</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot blue"></span>Groups + Expressions tutorial</div>
+          <div class="month-event"><span class="ev-dot green"></span>Templates workflow guide</div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="month-header">Month 6 — Roadmap</div>
+        <div class="month-body">
+          <div class="month-event"><span class="ev-dot blue"></span>File Upload preview</div>
+          <div class="month-event"><span class="ev-dot orange"></span>Customer survey + feedback</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="background:var(--navy); padding:2rem; text-align:center; color:white; margin-top:2rem;">
+  <p style="font-size:0.82rem; opacity:0.5;">d3VIEW Response Extractor · Marketing Package · Confidential · © 2026 d3VIEW Inc.</p>
+  <p style="font-size:0.72rem; opacity:0.35; margin-top:0.3rem;">All assets ready for adaptation and deployment. Video script, blog post, feature page copy, LinkedIn posts, webinar plans, and email newsletter are included.</p>
+</div>
+
+<script>
+  const navLinks = document.querySelectorAll('nav a');
+  const sections = ['video','blog','feature','linkedin','webinar','email'];
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top <= 100) current = id;
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>
